@@ -1,3 +1,4 @@
+```css
 * {
     box-sizing: border-box;
     margin: 0;
@@ -6,11 +7,14 @@
 
 body {
     min-height: 100vh;
-    background: #080a0d;
-    color: #ffffff;
+    background: #050505;
+    color: #fff;
     font-family: Arial, Helvetica, sans-serif;
-    overflow-x: hidden;
 }
+
+/* =========================
+   SPOLEČNÉ
+========================= */
 
 .hidden {
     display: none !important;
@@ -22,25 +26,26 @@ body {
     padding: 30px;
 }
 
+/* =========================
+   ZADÁVÁNÍ
+========================= */
+
 .panel {
     width: 100%;
     max-width: 1050px;
     margin: 0 auto;
-    background: #171a1f;
-    border: 2px solid #30343b;
-    border-radius: 8px;
-    padding: 28px;
-    box-shadow: 0 0 35px rgba(0, 0, 0, 0.55);
+    background: #151515;
+    border: 2px solid #333;
+    padding: 30px;
 }
 
 .entry-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    gap: 20px;
-    border-bottom: 2px solid #3a3f47;
-    padding-bottom: 20px;
-    margin-bottom: 28px;
+    align-items: center;
+    padding-bottom: 25px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #444;
 }
 
 .brand {
@@ -50,22 +55,22 @@ body {
 }
 
 .subtitle {
-    margin-top: 7px;
-    color: #aeb4bc;
-    font-size: 15px;
+    margin-top: 8px;
+    color: #aaa;
+    font-size: 14px;
     letter-spacing: 2px;
 }
 
 .clock {
-    font-size: 28px;
+    font-size: 30px;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
 }
 
 .form {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 18px;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 }
 
 .form label {
@@ -77,67 +82,86 @@ body {
 .form label span {
     font-size: 13px;
     font-weight: 700;
-    color: #b8bec6;
+    color: #aaa;
     letter-spacing: 1px;
 }
 
 .form input {
     width: 100%;
     height: 55px;
-    border: 2px solid #343941;
-    border-radius: 5px;
-    background: #0d1014;
-    color: white;
     padding: 0 15px;
-    font-size: 21px;
+
+    background: #080808;
+    color: white;
+
+    border: 2px solid #444;
+    border-radius: 3px;
+
+    font-size: 20px;
     outline: none;
 }
 
 .form input:focus {
-    border-color: #8f969f;
+    border-color: #aaa;
 }
 
 .main-button {
     width: 100%;
-    margin-top: 25px;
     height: 58px;
-    border: 0;
-    border-radius: 5px;
-    background: #e8e8e8;
-    color: #111318;
+    margin-top: 25px;
+
+    background: #eee;
+    color: #111;
+
+    border: none;
+    border-radius: 3px;
+
     font-size: 18px;
     font-weight: 800;
     cursor: pointer;
 }
 
 .main-button:hover {
-    background: #ffffff;
+    background: white;
 }
 
 .entry-list {
-    margin-top: 28px;
+    margin-top: 30px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 7px;
 }
 
 .entry-item {
     display: grid;
-    grid-template-columns: 80px 150px 1fr 110px 80px 80px 45px;
+
+    /* ČAS | VLAK | SMĚR | ZPOŽDĚNÍ | NÁST. | KOLEJ | SMAZAT */
+    grid-template-columns:
+        80px
+        150px
+        minmax(180px, 1fr)
+        100px
+        70px
+        70px
+        40px;
+
     align-items: center;
-    gap: 12px;
-    min-height: 52px;
-    padding: 8px 12px;
-    background: #0d1014;
-    border: 1px solid #30343b;
-    border-radius: 4px;
+    gap: 15px;
+
+    min-height: 55px;
+    padding: 8px 15px;
+
+    background: #080808;
+    border: 1px solid #333;
+
+    font-size: 14px;
 }
 
 .delete-button {
-    border: 0;
+    border: none;
     background: transparent;
-    color: #9fa5ad;
-    font-size: 22px;
+    color: #aaa;
+    font-size: 24px;
     cursor: pointer;
 }
 
@@ -146,149 +170,388 @@ body {
 }
 
 .hint {
-    margin-top: 22px;
-    color: #777e87;
+    margin-top: 25px;
     text-align: center;
+    color: #666;
     font-size: 13px;
-    letter-spacing: 1px;
 }
 
-/* TABULE */
+/* =========================
+   ODJEZDOVÁ TABULE
+========================= */
 
 .board {
     width: 100%;
     min-height: calc(100vh - 60px);
-    background: #050607;
-    border: 3px solid #25282d;
-    box-shadow: inset 0 0 0 2px #101216, 0 0 40px rgba(0, 0, 0, 0.7);
+
+    background: #070707;
+
+    border: 3px solid #292929;
+
+    box-shadow:
+        inset 0 0 0 2px #111,
+        0 0 40px rgba(0, 0, 0, 0.8);
 }
 
+/* HLAVIČKA */
+
 .board-header {
-    min-height: 105px;
+    min-height: 125px;
+
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    padding: 18px 30px;
-    border-bottom: 3px solid #30343a;
-    background: #0a0c0f;
+    align-items: center;
+
+    padding: 20px 35px;
+
+    background: #0b0b0b;
+    border-bottom: 3px solid #333;
 }
 
 .board-title {
-    font-size: clamp(38px, 5vw, 70px);
-    line-height: 1;
+    font-size: clamp(45px, 6vw, 75px);
     font-weight: 900;
+    line-height: 1;
     letter-spacing: 2px;
 }
 
 .board-subtitle {
-    margin-top: 8px;
-    color: #7d838b;
-    font-size: 14px;
+    margin-top: 10px;
+
+    color: #777;
+
+    font-size: 13px;
     letter-spacing: 4px;
 }
 
 .board-clock {
-    font-size: clamp(35px, 4vw, 60px);
+    font-size: clamp(40px, 5vw, 65px);
     font-weight: 800;
     font-variant-numeric: tabular-nums;
+
+    /* DŮLEŽITÉ:
+       hodiny mají vlastní prostor */
+    min-width: 150px;
+    text-align: right;
 }
+
+/* =========================
+   HLAVIČKA SLOUPCŮ
+========================= */
 
 .board-columns {
     display: grid;
-    grid-template-columns: 110px 180px 1fr 150px 100px 100px;
-    gap: 15px;
-    min-height: 55px;
+
+    /*
+       Každý sloupec má přesně dané místo.
+
+       ČAS
+       VLAK
+       SMĚR
+       ZPOŽDĚNÍ
+       NÁST.
+       KOLEJ
+    */
+
+    grid-template-columns:
+        120px
+        190px
+        minmax(300px, 1fr)
+        150px
+        100px
+        100px;
+
+    column-gap: 20px;
+
     align-items: center;
-    padding: 0 25px;
-    border-bottom: 2px solid #2c3036;
-    color: #858b93;
+
+    min-height: 55px;
+
+    padding: 0 30px;
+
+    background: #0d0d0d;
+
+    border-bottom: 2px solid #333;
+
+    color: #777;
+
     font-size: 13px;
     font-weight: 800;
     letter-spacing: 1px;
 }
 
+/* =========================
+   JEDNOTLIVÉ ODJEZDY
+========================= */
+
 .departures {
-    display: flex;
-    flex-direction: column;
+    width: 100%;
 }
 
 .departure {
     display: grid;
-    grid-template-columns: 110px 180px 1fr 150px 100px 100px;
-    gap: 15px;
+
+    /*
+       STEJNÉ ŠÍŘKY JAKO HLAVIČKA.
+       Díky tomu se čas nikdy nepotká
+       s linkou nebo směrem.
+    */
+
+    grid-template-columns:
+        120px
+        190px
+        minmax(300px, 1fr)
+        150px
+        100px
+        100px;
+
+    column-gap: 20px;
+
     align-items: center;
-    min-height: 92px;
-    padding: 8px 25px;
-    border-bottom: 1px solid #202328;
-    font-size: clamp(20px, 2.2vw, 30px);
-    font-weight: 700;
+
+    min-height: 105px;
+
+    padding: 10px 30px;
+
+    border-bottom: 1px solid #292929;
+
+    background: #080808;
 }
+
+/* lehce odlišné řádky */
 
 .departure:nth-child(even) {
-    background: #080a0d;
+    background: #0b0b0b;
 }
+
+/* =========================
+   ČAS
+========================= */
 
 .departure-time {
-    font-size: clamp(27px, 3vw, 40px);
+    display: block;
+
+    font-size: 42px;
+    line-height: 1;
+
     font-weight: 900;
+
     font-variant-numeric: tabular-nums;
+
+    white-space: nowrap;
+
+    /* vlastní sloupec */
+    width: 120px;
 }
+
+/* =========================
+   LINKA / VLAK
+========================= */
 
 .departure-train {
+    display: block;
+
+    font-size: 28px;
+    line-height: 1.1;
+
     font-weight: 900;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    width: 190px;
 }
+
+/* =========================
+   SMĚR
+========================= */
 
 .departure-destination {
-    overflow: hidden;
+    display: block;
+
+    font-size: 32px;
+    line-height: 1.15;
+
+    font-weight: 700;
+
     white-space: nowrap;
+
+    overflow: hidden;
     text-overflow: ellipsis;
+
+    min-width: 0;
 }
 
+/* =========================
+   ZPOŽDĚNÍ
+========================= */
+
 .delay {
-    font-size: 18px;
+    display: block;
+
+    font-size: 19px;
     font-weight: 800;
+
+    white-space: nowrap;
+
+    text-align: center;
+
+    width: 150px;
 }
 
 .delay.delayed {
-    color: #ff3b30;
+    color: #ff3030;
 }
 
 .delay.on-time {
-    color: #737a82;
+    color: #777;
 }
 
-.departure-platform,
-.departure-track {
+/* =========================
+   NÁSTUPIŠTĚ
+========================= */
+
+.departure-platform {
+    display: block;
+
+    width: 100px;
+
     text-align: center;
-    font-size: 25px;
+
+    font-size: 30px;
     font-weight: 900;
+
+    white-space: nowrap;
 }
+
+/* =========================
+   KOLEJ
+========================= */
+
+.departure-track {
+    display: block;
+
+    width: 100px;
+
+    text-align: center;
+
+    font-size: 30px;
+    font-weight: 900;
+
+    white-space: nowrap;
+}
+
+/* =========================
+   ŽÁDNÉ ODJEZDY
+========================= */
 
 .empty-board {
-    min-height: 250px;
+    min-height: 300px;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #626970;
-    font-size: 24px;
-    letter-spacing: 2px;
+
+    color: #555;
+
+    font-size: 25px;
+    letter-spacing: 3px;
 }
+
+/* =========================
+   SPODNÍ LIŠTA
+========================= */
 
 .board-footer {
     display: flex;
     justify-content: space-between;
-    padding: 18px 25px;
-    margin-top: auto;
-    border-top: 2px solid #2b2f35;
-    color: #626970;
+    align-items: center;
+
+    min-height: 55px;
+
+    padding: 0 30px;
+
+    border-top: 2px solid #292929;
+
+    color: #666;
+
     font-size: 12px;
     letter-spacing: 1px;
 }
 
-@media (max-width: 800px) {
+/* =========================
+   MENŠÍ OBRAZOVKY
+========================= */
+
+@media (max-width: 1000px) {
+
     .screen {
         padding: 10px;
     }
+
+    .board {
+        min-height: calc(100vh - 20px);
+    }
+
+    .board-columns {
+        grid-template-columns:
+            90px
+            130px
+            minmax(200px, 1fr)
+            100px
+            70px
+            70px;
+
+        column-gap: 10px;
+        padding: 0 15px;
+    }
+
+    .departure {
+        grid-template-columns:
+            90px
+            130px
+            minmax(200px, 1fr)
+            100px
+            70px
+            70px;
+
+        column-gap: 10px;
+        padding: 10px 15px;
+    }
+
+    .departure-time {
+        width: 90px;
+        font-size: 32px;
+    }
+
+    .departure-train {
+        width: 130px;
+        font-size: 23px;
+    }
+
+    .departure-destination {
+        font-size: 25px;
+    }
+
+    .delay {
+        width: 100px;
+        font-size: 15px;
+    }
+
+    .departure-platform,
+    .departure-track {
+        width: 70px;
+        font-size: 25px;
+    }
+}
+
+/* =========================
+   MOBIL
+========================= */
+
+@media (max-width: 650px) {
 
     .panel {
         padding: 18px;
@@ -299,37 +562,89 @@ body {
     }
 
     .entry-item {
-        grid-template-columns: 60px 100px 1fr 70px 55px 55px 35px;
-        font-size: 13px;
+        grid-template-columns: 60px 90px 1fr 65px 50px 50px 30px;
         gap: 5px;
+        padding: 7px;
+        font-size: 11px;
     }
 
-    .board {
-        min-height: calc(100vh - 20px);
+    .board-header {
+        padding: 15px;
+        min-height: 90px;
     }
+
+    .board-title {
+        font-size: 38px;
+    }
+
+    .board-clock {
+        min-width: 90px;
+        font-size: 32px;
+    }
+
+    /*
+       Na mobilu zůstává tabulka oddělená.
+       Směr má pořád vlastní prostor.
+    */
 
     .board-columns {
-        display: none;
+        grid-template-columns:
+            65px
+            95px
+            minmax(120px, 1fr)
+            70px
+            50px
+            50px;
+
+        column-gap: 5px;
+        padding: 0 8px;
+
+        font-size: 9px;
     }
 
     .departure {
-        grid-template-columns: 70px 100px 1fr 70px 50px 50px;
-        padding: 10px;
-        gap: 5px;
-        min-height: 80px;
-        font-size: 16px;
+        grid-template-columns:
+            65px
+            95px
+            minmax(120px, 1fr)
+            70px
+            50px
+            50px;
+
+        column-gap: 5px;
+        padding: 8px;
+
+        min-height: 75px;
     }
 
     .departure-time {
-        font-size: 23px;
+        width: 65px;
+        font-size: 24px;
+    }
+
+    .departure-train {
+        width: 95px;
+        font-size: 18px;
+    }
+
+    .departure-destination {
+        font-size: 19px;
+    }
+
+    .delay {
+        width: 70px;
+        font-size: 11px;
     }
 
     .departure-platform,
     .departure-track {
-        font-size: 18px;
+        width: 50px;
+        font-size: 19px;
     }
 
-    .delay {
-        font-size: 13px;
+    .board-footer {
+        padding: 0 10px;
+        font-size: 9px;
     }
 }
+```
