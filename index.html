@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
@@ -6,87 +7,200 @@
     <title>Vlakový informační systém</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <main id="app">
-        <section id="entryScreen" class="screen">
-            <div class="panel">
-                <header class="entry-header">
-                    <div>
-                        <div class="brand">VLAKOVÝ INFORMAČNÍ SYSTÉM</div>
-                        <div class="subtitle">ZADÁVÁNÍ ODJEZDU</div>
-                    </div>
-                    <div id="clock" class="clock">00:00:00</div>
-                </header>
 
-                <div class="form">
-                    <label>
-                        <span>ČAS</span>
-                        <input id="timeInput" type="time">
-                    </label>
+<main id="app">
 
-                    <label>
-                        <span>ZPOŽDĚNÍ</span>
-                        <input id="delayInput" type="number" min="0" placeholder="0">
-                    </label>
+```
+<!-- =========================
+     ZADÁVÁNÍ
+========================== -->
 
-                    <label>
-                        <span>LINKA / ČÍSLO VLAKU</span>
-                        <input id="trainInput" type="text" placeholder="S4 / Os 4821">
-                    </label>
+<section id="entryScreen" class="screen">
 
-                    <label>
-                        <span>SMĚR</span>
-                        <input id="destinationInput" type="text" placeholder="Brno hl.n.">
-                    </label>
+    <div class="panel">
 
-                    <label>
-                        <span>NÁSTUPIŠTĚ</span>
-                        <input id="platformInput" type="text" placeholder="2">
-                    </label>
+        <header class="entry-header">
 
-                    <label>
-                        <span>KOLEJ</span>
-                        <input id="trackInput" type="text" placeholder="4">
-                    </label>
+            <div>
+                <div class="brand">
+                    VLAKOVÝ INFORMAČNÍ SYSTÉM
                 </div>
 
-                <button id="addButton" class="main-button">PŘIDAT ODJEZD</button>
-
-                <div id="entryList" class="entry-list"></div>
-
-                <div class="hint">* = přepnout na odjezdovou tabuli</div>
-            </div>
-        </section>
-
-        <section id="boardScreen" class="screen hidden">
-            <div class="board">
-                <header class="board-header">
-                    <div>
-                        <div class="board-title">ODJEZDY</div>
-                        <div class="board-subtitle">DEPARTURES</div>
-                    </div>
-                    <div id="boardClock" class="board-clock">00:00</div>
-                </header>
-
-                <div class="board-columns">
-                    <div>ČAS</div>
-                    <div>VLAK</div>
-                    <div>SMĚR</div>
-                    <div>ZPOŽDĚNÍ</div>
-                    <div>NÁST.</div>
-                    <div>KOLEJ</div>
-                </div>
-
-                <div id="departures" class="departures"></div>
-
-                <div class="board-footer">
-                    <span>INFORMAČNÍ SYSTÉM</span>
-                    <span>* ZPĚT DO ZADÁVÁNÍ</span>
+                <div class="subtitle">
+                    ZADÁVÁNÍ ODJEZDŮ
                 </div>
             </div>
-        </section>
-    </main>
 
-    <script src="script.js"></script>
+            <div id="clock" class="clock">
+                00:00:00
+            </div>
+
+        </header>
+
+
+        <div class="form">
+
+            <label>
+                <span>ČAS</span>
+                <input
+                    id="timeInput"
+                    type="time"
+                >
+            </label>
+
+
+            <label>
+                <span>ZPOŽDĚNÍ</span>
+                <input
+                    id="delayInput"
+                    type="number"
+                    min="0"
+                    placeholder=""
+                >
+            </label>
+
+
+            <label>
+                <span>LINKA / ČÍSLO VLAKU</span>
+                <input
+                    id="trainInput"
+                    type="text"
+                    placeholder="S4 / Os 4821"
+                >
+            </label>
+
+
+            <label>
+                <span>SMĚR</span>
+                <input
+                    id="destinationInput"
+                    type="text"
+                    placeholder="Brno hl.n."
+                >
+            </label>
+
+
+            <label>
+                <span>NÁSTUPIŠTĚ</span>
+                <input
+                    id="platformInput"
+                    type="text"
+                    placeholder=""
+                >
+            </label>
+
+
+            <label>
+                <span>KOLEJ</span>
+                <input
+                    id="trackInput"
+                    type="text"
+                    placeholder=""
+                >
+            </label>
+
+        </div>
+
+
+        <button
+            id="addButton"
+            class="main-button"
+        >
+            PŘIDAT ODJEZD
+        </button>
+
+
+        <div id="entryList" class="entry-list"></div>
+
+
+        <div class="hint">
+            * = PŘEPNOUT NA ODJEZDOVOU TABULI
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     ODJEZDOVÁ TABULE
+========================== -->
+
+<section
+    id="boardScreen"
+    class="screen hidden"
+>
+
+    <div class="board">
+
+        <header class="board-header">
+
+            <div>
+                <div class="board-title">
+                    ODJEZDY
+                </div>
+
+                <div class="board-subtitle">
+                    DEPARTURES
+                </div>
+            </div>
+
+            <div
+                id="boardClock"
+                class="board-clock"
+            >
+                00:00
+            </div>
+
+        </header>
+
+
+        <div class="board-columns">
+
+            <div>ČAS</div>
+
+            <div>VLAK</div>
+
+            <div>SMĚR</div>
+
+            <div>ZPOŽDĚNÍ</div>
+
+            <div>NÁST.</div>
+
+            <div>KOLEJ</div>
+
+        </div>
+
+
+        <div
+            id="departures"
+            class="departures"
+        ></div>
+
+
+        <div class="board-footer">
+
+            <span>
+                INFORMAČNÍ SYSTÉM
+            </span>
+
+            <span>
+                * ZPĚT DO ZADÁVÁNÍ
+            </span>
+
+        </div>
+
+    </div>
+
+</section>
+```
+
+</main>
+
+<script src="script.js"></script>
+
 </body>
 </html>
+
