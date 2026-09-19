@@ -16,10 +16,67 @@ let departuresData = JSON.parse(
     localStorage.getItem("trainDepartures") || "[]"
 );
 
+const END_TIME = 18 * 60 + 59;
 
-/* =========================================================
-   PLÁNOVANÉ ODJEZDY
-   ========================================================= */
+/* =========================
+   AUTOMATICKÉ SPOJE
+========================= */
+
+function createPlannedId(train, time, destination) {
+    const cleanDestination = destination
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+
+    return `planned-${train.replace(/[^a-zA-Z0-9]/g, "")}-${time.replace(":", "")}-${cleanDestination}`;
+}
+
+function addPlanned(result, time, train, destination) {
+    const [hour, minute] = time.split(":").map(Number);
+    const totalMinutes = hour * 60 + minute;
+
+    if (totalMinutes > END_TIME) {
+        return;
+    }
+
+    result.push({
+        id: createPlannedId(train, time, destination),
+        planned: true,
+        time,
+        delay: "0",
+        train,
+        destination,
+        platform: "",
+        track: ""
+    });
+}
+
+function addEveryMinutes(
+    result,
+    startHour,
+    startMinute,
+    interval,
+    train,
+    destination
+) {
+    let minutes = startHour * 60 + startMinute;
+
+    while (minutes <= END_TIME) {
+        const hour = Math.floor(minutes / 60);
+        const minute = minutes % 60;
+
+        const time =
+            String(hour).padStart(2, "0") +
+            ":" +
+            String(minute).padStart(2, "0");
+
+        addPlanned(result, time, train, destination);
+
+        minutes += interval;
+    }
+}
 
 function generatePlannedDepartures() {
     const result = [];
@@ -30,52 +87,14 @@ function generatePlannedDepartures() {
     // 0 = neděle, 6 = sobota
     const weekend = day === 0 || day === 6;
 
-    function addEveryMinutes(
-        startHour,
-        startMinute,
-        interval,
-        train,
-        destination
-    ) {
-        let minutes = startHour * 60 + startMinute;
-        const end = 18 * 60 + 59;
-
-        while (minutes <= end) {
-            const hour = Math.floor(minutes / 60);
-            const minute = minutes % 60;
-
-            result.push({
-                id: `planned-${train}-${minutes}`,
-                planned: true,
-
-                time:
-                    String(hour).padStart(2, "0") +
-                    ":" +
-                    String(minute).padStart(2, "0"),
-
-                delay: "0",
-                train: train,
-                destination: destination,
-                platform: "",
-                track: ""
-            });
-
-            minutes += interval;
-        }
-    }
-
-
-    /*
-       ============================================
-       PRACOVNÍ DNY
-       ============================================
-    */
-
     if (!weekend) {
+        /* =========================
+           PRACOVNÍ DNY
+        ========================= */
 
-        // S1
-        // 14:12, potom každých 20 minut
+        // AND S1
         addEveryMinutes(
+            result,
             14,
             12,
             20,
@@ -83,10 +102,8 @@ function generatePlannedDepartures() {
             "Starý Lízátkov"
         );
 
-
-        // S1
-        // 14:15, potom každých 20 minut
         addEveryMinutes(
+            result,
             14,
             15,
             20,
@@ -94,10 +111,9 @@ function generatePlannedDepartures() {
             "Ana-Pralesov - Ana-Ansko"
         );
 
-
-        // S14
-        // 14:26, potom každých 30 minut
+        // AND S14
         addEveryMinutes(
+            result,
             14,
             26,
             30,
@@ -105,10 +121,9 @@ function generatePlannedDepartures() {
             "Snovín - Velkoplochovice - Svíčkov"
         );
 
-
-        // S15
-        // 14:13, potom každých 30 minut
+        // AND S15
         addEveryMinutes(
+            result,
             14,
             13,
             30,
@@ -116,10 +131,9 @@ function generatePlannedDepartures() {
             "Ulrychov - Habže - Filíkov - Silininky"
         );
 
-
-        // S25 Trnkov - Maďaryn
-        // 14:30, potom každou hodinu
+        // AND S25
         addEveryMinutes(
+            result,
             14,
             30,
             60,
@@ -127,30 +141,117 @@ function generatePlannedDepartures() {
             "Trnkov - Maďaryn"
         );
 
-
-        // S25 Mazi
-        // 15:00, potom každou hodinu
         addEveryMinutes(
+            result,
             15,
             0,
             60,
             "AND S25",
             "Mazi"
         );
-    }
 
+        // AND S7
+        addPlanned(
+            result,
+            "16:31",
+            "AND S7",
+            "Ana-Pralesov - Hambrovce - Azilka"
+        );
 
-    /*
-       ============================================
-       VÍKEND
-       ============================================
-    */
+        addPlanned(
+            result,
+            "18:31",
+            "AND S7",
+            "Ana-Pralesov - Hambrovce - Azilka"
+        );
 
-    else {
-
-        // S1 - Starý Lízátkov
-        // od 10:12 každých 20 minut
+        // AND R1
         addEveryMinutes(
+            result,
+            14,
+            3,
+            60,
+            "AND R1",
+            "Křečíkov-Alfonsovice - Křečkov hl.n."
+        );
+
+        // AND S15
+        addEveryMinutes(
+            result,
+            14,
+            58,
+            60,
+            "AND S15",
+            "Ulrychov - Habže - Silininky"
+        );
+
+        // RJET R56
+        addEveryMinutes(
+            result,
+            14,
+            4,
+            60,
+            "RJET R56",
+            "Osady u Maďarynu - Praha hl.n."
+        );
+
+        addEveryMinutes(
+            result,
+            14,
+            4,
+            60,
+            "RJET R56",
+            "Ana-Pralesov"
+        );
+
+        // AND R77
+        addEveryMinutes(
+            result,
+            15,
+            13,
+            120,
+            "AND R77",
+            "Niryny - Štěpánov"
+        );
+
+        // RJET R4
+        addEveryMinutes(
+            result,
+            14,
+            20,
+            60,
+            "RJET R4",
+            "Vícmanice - Gorzów Wielkopolski"
+        );
+
+        // AND Sp27
+        addEveryMinutes(
+            result,
+            14,
+            17,
+            60,
+            "AND Sp27",
+            "Svíčkov - Žábry"
+        );
+
+        // AND S92
+        addEveryMinutes(
+            result,
+            14,
+            23,
+            60,
+            "AND S92",
+            "Lamov - Niryny"
+        );
+
+    } else {
+        /* =========================
+           VÍKEND
+        ========================= */
+
+        // AND S1
+        addEveryMinutes(
+            result,
             10,
             12,
             20,
@@ -158,10 +259,8 @@ function generatePlannedDepartures() {
             "Starý Lízátkov"
         );
 
-
-        // S1 - Ana-Pralesov - Ana-Ansko
-        // od 10:15 každých 20 minut
         addEveryMinutes(
+            result,
             10,
             15,
             20,
@@ -169,63 +268,190 @@ function generatePlannedDepartures() {
             "Ana-Pralesov - Ana-Ansko"
         );
 
+        // AND S7
+        addPlanned(
+            result,
+            "18:31",
+            "AND S7",
+            "Ana-Pralesov - Hambrovce - Azilka"
+        );
 
-        // S25 Mazi
-        // víkendové jednotlivé odjezdy
-        addFixedDeparture(
+        // AND R1
+        addEveryMinutes(
+            result,
+            10,
+            3,
+            60,
+            "AND R1",
+            "Křečíkov-Alfonsovice - Křečkov hl.n."
+        );
+
+        // AND S15 – přes Filíkov
+        addEveryMinutes(
+            result,
+            10,
+            28,
+            60,
+            "AND S15",
+            "Ulrychov - Habže - Filíkov - Silininky"
+        );
+
+        // AND S15 – bez Filíkova
+        addEveryMinutes(
+            result,
+            10,
+            58,
+            60,
+            "AND S15",
+            "Ulrychov - Habže - Silininky"
+        );
+
+        // RJET R56 – Praha
+        addEveryMinutes(
+            result,
+            10,
+            4,
+            120,
+            "RJET R56",
+            "Osady u Maďarynu - Praha hl.n."
+        );
+
+        // RJET R56 – Ana-Pralesov
+        addEveryMinutes(
+            result,
+            11,
+            4,
+            120,
+            "RJET R56",
+            "Ana-Pralesov"
+        );
+
+        // AND R77
+        addEveryMinutes(
+            result,
+            11,
+            13,
+            120,
+            "AND R77",
+            "Niryny - Štěpánov"
+        );
+
+        // AND S14
+        addEveryMinutes(
+            result,
+            10,
+            56,
+            60,
+            "AND S14",
+            "Snovín - Velkoplochovice - Svíčkov"
+        );
+
+        // AND Sp27 – Žábry
+        addEveryMinutes(
+            result,
+            10,
+            17,
+            120,
+            "AND Sp27",
+            "Svíčkov - Žábry"
+        );
+
+        // AND Sp27 – Svíčkov
+        addEveryMinutes(
+            result,
+            11,
+            17,
+            120,
+            "AND Sp27",
+            "Svíčkov"
+        );
+
+        // AND S25
+        // 10:30, 11:30, 12:30...
+        // výjimky: 12:30, 15:30, 20:30
+        // 20:30 se kvůli limitu 18:59 stejně nevygeneruje.
+        let s25Minutes = 10 * 60 + 30;
+
+        while (s25Minutes <= END_TIME) {
+            const hour = Math.floor(s25Minutes / 60);
+            const minute = s25Minutes % 60;
+
+            if (
+                !(hour === 12 && minute === 30) &&
+                !(hour === 15 && minute === 30) &&
+                !(hour === 20 && minute === 30)
+            ) {
+                const time =
+                    String(hour).padStart(2, "0") +
+                    ":" +
+                    String(minute).padStart(2, "0");
+
+                addPlanned(
+                    result,
+                    time,
+                    "AND S25",
+                    "Trnkov - Maďaryn"
+                );
+            }
+
+            s25Minutes += 60;
+        }
+
+        // Původní víkendové spoje S25 – Mazi
+        addPlanned(
             result,
             "12:30",
             "AND S25",
             "Mazi"
         );
 
-        addFixedDeparture(
+        addPlanned(
             result,
             "15:30",
             "AND S25",
             "Mazi"
+        );
+
+        // AND S92
+        addEveryMinutes(
+            result,
+            10,
+            23,
+            120,
+            "AND S92",
+            "Lamov - Niryny"
+        );
+
+        // RJET R4
+        addEveryMinutes(
+            result,
+            10,
+            20,
+            120,
+            "RJET R4",
+            "Vícmanice - Gorzów Wielkopolski"
         );
     }
 
     return result;
 }
 
-
-function addFixedDeparture(
-    result,
-    time,
-    train,
-    destination
-) {
-    result.push({
-        id: `planned-${train}-${time}`,
-        planned: true,
-
-        time: time,
-        delay: "0",
-        train: train,
-        destination: destination,
-        platform: "",
-        track: ""
-    });
-}
-
-
-/* =========================================================
-   RUČNÍ ODJEZDY
-   ========================================================= */
+/* =========================
+   ČAS
+========================= */
 
 function setDefaultTime() {
     const now = new Date();
 
-    const hh = String(now.getHours()).padStart(2, "0");
-    const mm = String(now.getMinutes()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
 
-    if (!timeInput.value) {
-        timeInput.value = `${hh}:${mm}`;
-    }
+    timeInput.value = `${hours}:${minutes}`;
 }
 
+/* =========================
+   ULOŽENÍ
+========================= */
 
 function saveData() {
     localStorage.setItem(
@@ -234,76 +460,70 @@ function saveData() {
     );
 }
 
+/* =========================
+   PŘIDÁNÍ VLASTNÍHO SPOJE
+========================= */
 
 function addDeparture() {
     const time = timeInput.value;
     const delay = delayInput.value.trim();
     const train = trainInput.value.trim();
     const destination = destinationInput.value.trim();
-
     const platform = platformInput.value.trim();
     const track = trackInput.value.trim();
 
     if (!time || !train || !destination) {
-        alert(
-            "Vyplň prosím čas, linku / číslo vlaku a směr."
-        );
-
+        alert("Vyplň čas, linku/číslo vlaku a směr.");
         return;
     }
 
-    departuresData.push({
-        id: "manual-" + Date.now(),
-
+    const newDeparture = {
+        id: `manual-${Date.now()}`,
         planned: false,
-
-        time: time,
+        time,
         delay: delay || "0",
-        train: train,
-        destination: destination,
-        platform: platform,
-        track: track
-    });
+        train,
+        destination,
+        platform,
+        track
+    };
+
+    departuresData.push(newDeparture);
 
     saveData();
-
     renderAll();
 
+    delayInput.value = "";
     trainInput.value = "";
     destinationInput.value = "";
     platformInput.value = "";
     trackInput.value = "";
-    delayInput.value = "";
 
-    trainInput.focus();
+    setDefaultTime();
 }
 
-
-/* =========================================================
+/* =========================
    ŘAZENÍ
-   ========================================================= */
+========================= */
 
 function sortDepartures(data) {
-    data.sort((a, b) => {
-        return a.time.localeCompare(b.time);
-    });
+    return [...data].sort((a, b) => {
+        const timeA = a.time.split(":").map(Number);
+        const timeB = b.time.split(":").map(Number);
 
-    return data;
+        const minutesA = timeA[0] * 60 + timeA[1];
+        const minutesB = timeB[0] * 60 + timeB[1];
+
+        return minutesA - minutesB;
+    });
 }
 
+/* =========================
+   ÚPRAVA MANUÁLNÍHO SPOJE
+========================= */
 
-/* =========================================================
-   ÚPRAVA RUČNÍCH SPOJŮ
-   ========================================================= */
-
-function updateDeparture(
-    id,
-    field,
-    value
-) {
-    const departure = departuresData.find(
-        item => item.id === id
-    );
+function updateDeparture(id, field, value) {
+    const departure = departuresData.find(item => item.id === id);
 
     if (!departure) {
         return;
@@ -312,42 +532,35 @@ function updateDeparture(
     departure[field] = value;
 
     saveData();
-
     renderAll();
 }
 
+/* =========================
+   ÚPRAVA AUTOMATICKÉHO SPOJE
+========================= */
 
-/* =========================================================
-   ÚPRAVA PLÁNOVANÉHO SPOJE
-   ========================================================= */
-
-function updatePlannedDeparture(
-    id,
-    field,
-    value
-) {
-    const saved = JSON.parse(
+function updatePlannedDeparture(id, field, value) {
+    let overrides = JSON.parse(
         localStorage.getItem("plannedOverrides") || "{}"
     );
 
-    if (!saved[id]) {
-        saved[id] = {};
+    if (!overrides[id]) {
+        overrides[id] = {};
     }
 
-    saved[id][field] = value;
+    overrides[id][field] = value;
 
     localStorage.setItem(
         "plannedOverrides",
-        JSON.stringify(saved)
+        JSON.stringify(overrides)
     );
 
     renderAll();
 }
 
-
-/* =========================================================
-   APLIKOVÁNÍ ÚPRAV PLÁNOVANÝCH SPOJŮ
-   ========================================================= */
+/* =========================
+   APLIKACE ÚPRAV
+========================= */
 
 function applyPlannedOverrides(data) {
     const overrides = JSON.parse(
@@ -355,12 +568,7 @@ function applyPlannedOverrides(data) {
     );
 
     return data.map(item => {
-
-        if (!item.planned) {
-            return item;
-        }
-
-        if (!overrides[item.id]) {
+        if (!item.planned || !overrides[item.id]) {
             return item;
         }
 
@@ -371,178 +579,160 @@ function applyPlannedOverrides(data) {
     });
 }
 
-
-/* =========================================================
-   SMAZÁNÍ RUČNÍHO SPOJE
-   ========================================================= */
+/* =========================
+   SMAZÁNÍ
+========================= */
 
 function deleteDeparture(id) {
-
     departuresData = departuresData.filter(
         item => item.id !== id
     );
 
     saveData();
-
     renderAll();
 }
 
-
-/* =========================================================
-   VŠECHNY AKTUÁLNÍ ODJEZDY
-   ========================================================= */
+/* =========================
+   VŠECHNY ODJEZDY
+========================= */
 
 function getAllDepartures() {
-
     const planned = generatePlannedDepartures();
 
     const plannedWithOverrides =
         applyPlannedOverrides(planned);
 
-    const all = [
+    return [
         ...plannedWithOverrides,
         ...departuresData
     ];
-
-    return sortDepartures(all);
 }
 
-
-/* =========================================================
-   ZADÁVACÍ OBRAZOVKA
-   ========================================================= */
+/* =========================
+   EDITAČNÍ SEZNAM
+========================= */
 
 function renderEntryList() {
+    if (!entryList) {
+        return;
+    }
+
+    const all = sortDepartures(getAllDepartures());
 
     entryList.innerHTML = "";
 
-    const all = getAllDepartures();
-
     all.forEach(item => {
-
         const row = document.createElement("div");
 
         row.className = "entry-item";
 
-
-        const updateFunction =
-            item.planned
-                ? "updatePlannedDeparture"
-                : "updateDeparture";
-
-
         row.innerHTML = `
-            <strong>
-                ${escapeHtml(item.time)}
-            </strong>
+            <input
+                type="time"
+                value="${escapeHtml(item.time)}"
+                data-field="time"
+            >
 
-            <strong>
-                ${escapeHtml(item.train)}
-            </strong>
+            <input
+                type="text"
+                value="${escapeHtml(item.train)}"
+                data-field="train"
+            >
 
-            <span>
-                ${escapeHtml(item.destination)}
-            </span>
+            <input
+                type="text"
+                value="${escapeHtml(item.destination)}"
+                data-field="destination"
+            >
 
-            <div>
-                <span class="edit-label">
-                    Zpoždění
-                </span>
+            <input
+                type="text"
+                placeholder="zpoždění"
+                value="${escapeHtml(item.delay || "")}"
+                data-field="delay"
+            >
 
-                <input
-                    type="number"
-                    min="0"
-                    value="${
-                        item.delay === "0"
-                            ? ""
-                            : escapeHtml(item.delay)
-                    }"
-                    placeholder="0"
-                    onchange="${updateFunction}(
-                        '${escapeHtml(item.id)}',
-                        'delay',
-                        this.value || '0'
-                    )"
-                >
-            </div>
+            <input
+                type="text"
+                placeholder="nást."
+                value="${escapeHtml(item.platform || "")}"
+                data-field="platform"
+            >
 
-            <div>
-                <span class="edit-label">
-                    Nást.
-                </span>
+            <input
+                type="text"
+                placeholder="kolej"
+                value="${escapeHtml(item.track || "")}"
+                data-field="track"
+            >
 
-                <input
-                    type="text"
-                    value="${escapeHtml(item.platform)}"
-                    placeholder="-"
-                    onchange="${updateFunction}(
-                        '${escapeHtml(item.id)}',
-                        'platform',
-                        this.value
-                    )"
-                >
-            </div>
-
-            <div>
-                <span class="edit-label">
-                    Kolej
-                </span>
-
-                <input
-                    type="text"
-                    value="${escapeHtml(item.track)}"
-                    placeholder="-"
-                    onchange="${updateFunction}(
-                        '${escapeHtml(item.id)}',
-                        'track',
-                        this.value
-                    )"
-                >
-            </div>
-
-            ${
-                item.planned
-                    ? `<span
-                         style="
-                           color:#656b73;
-                           font-size:10px;
-                           text-align:center;
-                         "
-                       >
-                         PLÁN
-                       </span>`
-                    : `<button
-                         class="delete-button"
-                         title="Smazat"
-                         onclick="deleteDeparture(
-                            '${escapeHtml(item.id)}'
-                         )"
-                       >
-                         ×
-                       </button>`
-            }
+            <button
+                class="delete-button"
+                type="button"
+            >
+                ×
+            </button>
         `;
+
+        const inputs = row.querySelectorAll("input");
+
+        inputs.forEach(input => {
+            input.addEventListener("change", () => {
+                const field = input.dataset.field;
+                const value = input.value;
+
+                if (item.planned) {
+                    updatePlannedDeparture(
+                        item.id,
+                        field,
+                        value
+                    );
+                } else {
+                    updateDeparture(
+                        item.id,
+                        field,
+                        value
+                    );
+                }
+            });
+        });
+
+        const deleteButton =
+            row.querySelector(".delete-button");
+
+        deleteButton.addEventListener("click", () => {
+            if (item.planned) {
+                let overrides = JSON.parse(
+                    localStorage.getItem("plannedOverrides") || "{}"
+                );
+
+                delete overrides[item.id];
+
+                localStorage.setItem(
+                    "plannedOverrides",
+                    JSON.stringify(overrides)
+                );
+
+                renderAll();
+            } else {
+                deleteDeparture(item.id);
+            }
+        });
 
         entryList.appendChild(row);
     });
 }
 
-
-/* =========================================================
-   ODJEZDOVÁ TABULE
-   ========================================================= */
+/* =========================
+   TABULE
+========================= */
 
 function renderBoard() {
+    if (!departures) {
+        return;
+    }
 
-    departures.innerHTML = "";
-
-    let all = getAllDepartures();
-
-
-    /*
-       Zobrazíme jen budoucí spoje.
-       Ruční spoje i plánované.
-    */
+    const all = sortDepartures(getAllDepartures());
 
     const now = new Date();
 
@@ -550,242 +740,161 @@ function renderBoard() {
         now.getHours() * 60 +
         now.getMinutes();
 
+    const future = all.filter(item => {
+        const [hour, minute] =
+            item.time.split(":").map(Number);
 
-    all = all.filter(item => {
+        const departureMinutes =
+            hour * 60 + minute;
 
-        const parts = item.time.split(":");
-
-        const minutes =
-            Number(parts[0]) * 60 +
-            Number(parts[1]);
-
-        return minutes >= currentMinutes;
+        return departureMinutes >= currentMinutes;
     });
 
+    const visible = future.slice(0, 8);
 
-    /*
-       Tabule zobrazí maximálně 8 nejbližších spojů.
-    */
+    departures.innerHTML = "";
 
-    all = all.slice(0, 8);
-
-
-    if (all.length === 0) {
-
-        departures.innerHTML = `
-            <div class="empty-board">
-                ŽÁDNÉ DALŠÍ ODJEZDY
-            </div>
-        `;
-
-        return;
-    }
-
-
-    all.forEach(item => {
-
-        const row =
-            document.createElement("div");
+    visible.forEach(item => {
+        const row = document.createElement("div");
 
         row.className = "departure";
 
+        let delayText = "-";
 
-        const delayNumber =
-            parseInt(item.delay, 10) || 0;
-
-
-        let delayHtml;
-
-        if (delayNumber > 0) {
-
-            delayHtml = `
-                <span class="delay delayed">
-                    +${delayNumber} min
-                </span>
-            `;
-
-        } else {
-
-            delayHtml = `
-                <span class="delay on-time">
-                    VČAS
-                </span>
-            `;
+        if (
+            item.delay &&
+            item.delay !== "0" &&
+            item.delay !== "0 min"
+        ) {
+            delayText = `+${item.delay}`;
         }
 
-
         row.innerHTML = `
-
-            <span class="departure-time">
+            <div class="departure-time">
                 ${escapeHtml(item.time)}
-            </span>
+            </div>
 
-            <span class="departure-train">
+            <div class="departure-train">
                 ${escapeHtml(item.train)}
-            </span>
+            </div>
 
-            <span class="departure-destination">
+            <div class="departure-destination">
                 ${escapeHtml(item.destination)}
-            </span>
+            </div>
 
-            ${delayHtml}
+            <div class="departure-delay">
+                ${escapeHtml(delayText)}
+            </div>
 
-            <span class="departure-platform">
+            <div class="departure-platform">
                 ${escapeHtml(item.platform || "-")}
-            </span>
+            </div>
 
-            <span class="departure-track">
+            <div class="departure-track">
                 ${escapeHtml(item.track || "-")}
-            </span>
+            </div>
         `;
-
 
         departures.appendChild(row);
     });
+
+    if (visible.length === 0) {
+        departures.innerHTML = `
+            <div class="no-departures">
+                Žádné další odjezdy
+            </div>
+        `;
+    }
 }
 
-
-/* =========================================================
-   VŠE
-   ========================================================= */
+/* =========================
+   VYKRESLENÍ
+========================= */
 
 function renderAll() {
-
     renderEntryList();
     renderBoard();
 }
 
-
-/* =========================================================
-   PŘEPÍNÁNÍ OBRAZOVEK
-   ========================================================= */
+/* =========================
+   PŘEPNUTÍ OBRAZOVEK
+========================= */
 
 function toggleScreen() {
-
     entryScreen.classList.toggle("hidden");
     boardScreen.classList.toggle("hidden");
 
-
-    if (!boardScreen.classList.contains("hidden")) {
-
-        renderBoard();
-
-    } else {
-
-        renderEntryList();
-
-        trainInput.focus();
-    }
+    renderAll();
 }
 
-
-/* =========================================================
+/* =========================
    HODINY
-   ========================================================= */
+========================= */
 
 function updateClocks() {
+    const clocks =
+        document.querySelectorAll(".clock");
 
     const now = new Date();
 
-
     const time =
-        now.toLocaleTimeString(
-            "cs-CZ",
-            {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit"
-            }
-        );
+        String(now.getHours()).padStart(2, "0") +
+        ":" +
+        String(now.getMinutes()).padStart(2, "0") +
+        ":" +
+        String(now.getSeconds()).padStart(2, "0");
 
-
-    const shortTime =
-        now.toLocaleTimeString(
-            "cs-CZ",
-            {
-                hour: "2-digit",
-                minute: "2-digit"
-            }
-        );
-
-
-    document.getElementById(
-        "clock"
-    ).textContent = time;
-
-
-    document.getElementById(
-        "boardClock"
-    ).textContent = shortTime;
+    clocks.forEach(clock => {
+        clock.textContent = time;
+    });
 }
 
-
-/* =========================================================
-   OCHRANA HTML
-   ========================================================= */
+/* =========================
+   BEZPEČNÉ HTML
+========================= */
 
 function escapeHtml(value) {
-
     return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
-
-/* =========================================================
+/* =========================
    OVLÁDÁNÍ
-   ========================================================= */
+========================= */
 
 addButton.addEventListener(
     "click",
     addDeparture
 );
 
-
 document.addEventListener(
     "keydown",
     event => {
-
         if (event.key === "*") {
-
             event.preventDefault();
-
             toggleScreen();
         }
     }
 );
 
-
-/* =========================================================
+/* =========================
    START
-   ========================================================= */
+========================= */
 
 setDefaultTime();
-
 renderAll();
-
 updateClocks();
 
-
-/*
-   Každou sekundu:
-   - aktualizace hodin
-   - kontrola plánovaných odjezdů
-*/
-
 setInterval(() => {
-
     updateClocks();
 
     if (
-        !boardScreen.classList.contains(
-            "hidden"
-        )
+        !boardScreen.classList.contains("hidden")
     ) {
         renderBoard();
     }
-
 }, 1000);
