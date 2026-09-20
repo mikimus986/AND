@@ -400,6 +400,23 @@ body {
         font-size: 13px;
     }
 }
+.edit-field {
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    padding: 8px 10px;
+    cursor: text;
+    position: relative;
+    z-index: 5;
+}
+
+.entry-time,
+.entry-train,
+.entry-destination {
+    pointer-events: none;
+    user-select: none;
+}
+
 .departure-on-time {
     color: #888;
     font-weight: 600;
