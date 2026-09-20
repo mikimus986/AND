@@ -126,7 +126,6 @@ function generatePlannedDepartures() {
     const result = [];
 
     const now = new Date();
-
     const day = now.getDay();
 
     const weekend =
@@ -441,6 +440,10 @@ function generatePlannedDepartures() {
 
 
         // AND S25
+        // 10:30, 11:30, 13:30, 14:30,
+        // 16:30, 17:30, 18:30
+        // 12:30 a 15:30 jsou vynechané
+
         let s25Minutes =
             10 * 60 + 30;
 
@@ -475,6 +478,7 @@ function generatePlannedDepartures() {
                     "Trnkov - Maďaryn"
                 );
             }
+
 
             s25Minutes += 60;
         }
@@ -529,6 +533,10 @@ function generatePlannedDepartures() {
 
 function setDefaultTime() {
 
+    if (!timeInput) {
+        return;
+    }
+
     const now = new Date();
 
     const hours =
@@ -539,10 +547,8 @@ function setDefaultTime() {
         String(now.getMinutes())
             .padStart(2, "0");
 
-    if (timeInput) {
-        timeInput.value =
-            `${hours}:${minutes}`;
-    }
+    timeInput.value =
+        `${hours}:${minutes}`;
 }
 
 
@@ -589,6 +595,7 @@ function addDeparture() {
         !train ||
         !destination
     ) {
+
         alert(
             "Vyplň čas, linku/číslo vlaku a směr."
         );
@@ -640,7 +647,7 @@ function addDeparture() {
 
 
 /* =========================================================
-   PŘEVOD ČASU NA MINUTY
+   ČAS → MINUTY
 ========================================================= */
 
 function timeToMinutes(time) {
@@ -660,7 +667,7 @@ function timeToMinutes(time) {
 
 
 /* =========================================================
-   ZPOŽDĚNÍ NA MINUTY
+   ZPOŽDĚNÍ → MINUTY
 ========================================================= */
 
 function delayToMinutes(delay) {
@@ -740,11 +747,11 @@ function sortDepartures(data) {
 
 
 /* =========================================================
-   ÚPRAVA SPOJE
-   POVOLENO:
-   - zpoždění
-   - nástupiště
-   - kolej
+   ÚPRAVA MANUÁLNÍHO SPOJE
+   POUZE:
+   - ZPOŽDĚNÍ
+   - NÁSTUPIŠTĚ
+   - KOLEJ
 ========================================================= */
 
 function updateDeparture(
@@ -832,7 +839,9 @@ function updatePlannedDeparture(
 
     localStorage.setItem(
         "plannedOverrides",
-        JSON.stringify(overrides)
+        JSON.stringify(
+            overrides
+        )
     );
 
 
@@ -841,7 +850,7 @@ function updatePlannedDeparture(
 
 
 /* =========================================================
-   ÚPRAVY AUTOMATICKÝCH SPOJŮ
+   APLIKACE ÚPRAV
 ========================================================= */
 
 function applyPlannedOverrides(data) {
@@ -873,7 +882,7 @@ function applyPlannedOverrides(data) {
 
 
 /* =========================================================
-   SMAZÁNÍ VLASTNÍHO SPOJE
+   SMAZÁNÍ
 ========================================================= */
 
 function deleteDeparture(id) {
@@ -915,7 +924,7 @@ function getAllDepartures() {
 
 
 /* =========================================================
-   SPOJE, KTERÉ JEŠTĚ NEODJELY
+   AKTUÁLNĚ PLATNÉ SPOJE
 ========================================================= */
 
 function getActiveDepartures() {
@@ -950,7 +959,7 @@ function getActiveDepartures() {
 
 
 /* =========================================================
-   EDITAČNÍ SEZNAM
+   SEZNAM PRO ÚPRAVU
 ========================================================= */
 
 function renderEntryList() {
@@ -960,8 +969,7 @@ function renderEntryList() {
     }
 
 
-    // ZOBRAZUJÍ SE JEN SPOJE,
-    // KTERÉ JEŠTĚ NEODJELY
+    // Už odjeté spoje se zde nezobrazí
     const all =
         sortDepartures(
             getActiveDepartures()
@@ -1120,7 +1128,7 @@ function renderEntryList() {
 
 
 /* =========================================================
-   TABULE ODJEZDŮ
+   TABULE
 ========================================================= */
 
 function renderBoard() {
@@ -1155,19 +1163,26 @@ function renderBoard() {
             "departure";
 
 
-        let delayText = "-";
-
-
         const delay =
             delayToMinutes(
                 item.delay
             );
 
 
+        let delayText =
+            "Včas";
+
+        let delayClass =
+            "departure-on-time";
+
+
         if (delay > 0) {
 
             delayText =
-                `+${delay}`;
+                `+${delay} minut`;
+
+            delayClass =
+                "departure-delayed";
         }
 
 
@@ -1185,7 +1200,7 @@ function renderBoard() {
                 ${escapeHtml(item.destination)}
             </div>
 
-            <div class="departure-delay">
+            <div class="departure-delay ${delayClass}">
                 ${escapeHtml(delayText)}
             </div>
 
@@ -1217,7 +1232,7 @@ function renderBoard() {
 
 
 /* =========================================================
-   VYKRESLENÍ VŠEHO
+   VYKRESLENÍ
 ========================================================= */
 
 function renderAll() {
@@ -1229,7 +1244,7 @@ function renderAll() {
 
 
 /* =========================================================
-   PŘEPNUTÍ TABULE / ZADÁVÁNÍ
+   PŘEPÍNÁNÍ OBRAZOVEK
 ========================================================= */
 
 function toggleScreen() {
@@ -1248,7 +1263,7 @@ function toggleScreen() {
 
 
 /* =========================================================
-   AKTUÁLNÍ ČAS
+   HODINY NA TABULI
 ========================================================= */
 
 function updateClocks() {
@@ -1271,7 +1286,7 @@ function updateClocks() {
         ).padStart(2, "0");
 
 
-    // Funguje pro #clock
+    // #clock
     const mainClock =
         document.getElementById(
             "clock"
@@ -1279,12 +1294,13 @@ function updateClocks() {
 
 
     if (mainClock) {
+
         mainClock.textContent =
             time;
     }
 
 
-    // Funguje i pro všechny .clock
+    // případné další .clock
     const clocks =
         document.querySelectorAll(
             ".clock"
@@ -1333,10 +1349,13 @@ function escapeHtml(value) {
    KLÁVESNICE
 ========================================================= */
 
-addButton.addEventListener(
-    "click",
-    addDeparture
-);
+if (addButton) {
+
+    addButton.addEventListener(
+        "click",
+        addDeparture
+    );
+}
 
 
 document.addEventListener(
@@ -1371,12 +1390,11 @@ setInterval(
 
         updateClocks();
 
-        // Každou sekundu kontrolujeme,
-        // jestli už nějaký spoj neodjel.
+        // Každou sekundu kontrola
+        // aktuálních odjezdů
         renderBoard();
 
-        // A zároveň aktualizujeme
-        // seznam pro úpravy.
+        // Aktualizace seznamu pro úpravy
         renderEntryList();
 
     },
