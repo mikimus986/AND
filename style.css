@@ -4,14 +4,13 @@
     padding: 0;
 }
 
-
 body {
     min-height: 100vh;
 
     background:
         radial-gradient(
             circle at center,
-            #252a30 0%,
+            #20252c 0%,
             #0d1014 75%
         );
 
@@ -25,374 +24,297 @@ body {
     padding: 25px;
 }
 
-
 .hidden {
     display: none !important;
 }
 
 
-.container {
-    width: 100%;
-    max-width: 1250px;
-    margin: 0 auto;
-}
-
-
 /* =====================================================
-   HLAVNÍ PANEL
+   ZADÁVÁNÍ
    ===================================================== */
+
+.screen {
+    width: 100%;
+}
 
 .panel {
     width: 100%;
+    max-width: 1150px;
 
-    background: #15191e;
+    margin: 0 auto;
 
-    border: 1px solid #30353b;
+    background: #151a20;
+
+    border: 1px solid #30363d;
     border-radius: 10px;
 
-    box-shadow:
-        0 15px 45px rgba(0, 0, 0, 0.45);
-
     overflow: hidden;
+
+    box-shadow:
+        0 15px 40px rgba(0, 0, 0, 0.45);
 }
 
 
-/* =====================================================
-   HLAVIČKA
-   ===================================================== */
+/* HLAVIČKA */
 
-.header {
-    min-height: 80px;
+.entry-header {
+    min-height: 75px;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    padding: 15px 25px;
+    padding: 14px 20px;
 
-    background: #101318;
+    background: #101419;
 
-    border-bottom: 1px solid #30353b;
+    border-bottom: 1px solid #30363d;
 }
 
+.brand {
+    font-size: 23px;
+    font-weight: 900;
 
-.header-title {
-    font-size: 30px;
-    font-weight: 800;
     letter-spacing: 1px;
 }
 
+.subtitle {
+    margin-top: 3px;
 
-.header-subtitle {
-    margin-top: 4px;
+    color: #858d96;
 
-    color: #92979d;
+    font-size: 12px;
+    font-weight: 700;
 
-    font-size: 13px;
     letter-spacing: 2px;
 }
 
+.clock {
+    font-size: 28px;
+    font-weight: 800;
 
-.clock,
-#clock {
-    min-width: 125px;
+    color: #aab1b9;
 
-    text-align: right;
-
-    font-size: 27px;
-    font-weight: 700;
-
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric:
+        tabular-nums;
 }
 
 
-/* =====================================================
-   OBSAH
-   ===================================================== */
+/* FORMULÁŘ */
 
-.content {
-    padding: 25px;
-}
-
-
-/* =====================================================
-   FORMULÁŘ
-   ===================================================== */
-
-.form-grid {
+.form {
     display: grid;
 
     grid-template-columns:
         120px
-        140px
-        minmax(180px, 1fr)
         130px
+        minmax(180px, 1fr)
+        minmax(180px, 1fr)
         100px
         100px;
 
-    gap: 12px;
+    gap: 10px;
+
+    padding: 20px;
 }
 
-
-.form-group {
+.form label {
     display: flex;
     flex-direction: column;
 
     gap: 6px;
 }
 
+.form label span {
+    color: #aeb5bd;
 
-.form-group label {
-    color: #aeb4ba;
+    font-size: 12px;
+    font-weight: 800;
 
-    font-size: 13px;
-    font-weight: 700;
+    letter-spacing: 0.5px;
 }
 
-
-input,
-button {
-    font-family: inherit;
-}
-
-
-input:not(.edit-field) {
+.form input {
     width: 100%;
-    height: 46px;
+    height: 42px;
 
-    padding: 8px 12px;
+    padding: 8px 10px;
 
-    background: #0e1115;
+    background: #0e1216;
 
-    border: 1px solid #41474e;
-    border-radius: 6px;
+    border: 1px solid #3b424a;
+    border-radius: 5px;
 
     color: #ffffff;
 
-    font-size: 16px;
+    font-size: 15px;
 
     outline: none;
 }
 
-
-input:not(.edit-field):focus {
-    border-color: #ffffff;
+.form input:focus {
+    border-color: #8e969f;
 }
 
 
-.add-button {
-    margin-top: 18px;
+/* PŘIDAT */
 
-    min-height: 48px;
+.main-button {
+    margin: 0 20px 20px;
 
-    padding: 10px 22px;
+    min-height: 42px;
 
-    border: none;
-    border-radius: 6px;
+    padding: 8px 18px;
 
-    background: #e6e6e6;
-    color: #111111;
+    border: 1px solid #4b535b;
+    border-radius: 5px;
 
-    font-size: 16px;
+    background: #252b31;
+    color: #ffffff;
+
+    font-size: 14px;
     font-weight: 800;
 
     cursor: pointer;
 }
 
-
-.add-button:hover {
-    background: #ffffff;
+.main-button:hover {
+    background: #30373e;
 }
 
-
-.add-button:active {
+.main-button:active {
     transform: translateY(1px);
 }
 
 
 /* =====================================================
-   SEZNAM ÚPRAV
+   SEZNAM
    ===================================================== */
 
 .entry-list {
-    margin-top: 30px;
+    padding: 0 20px 20px;
 
     display: flex;
     flex-direction: column;
 
-    gap: 8px;
+    gap: 7px;
 }
-
-
-.entry-header {
-    display: grid;
-
-    grid-template-columns:
-        75px
-        140px
-        minmax(180px, 1fr)
-        125px
-        100px
-        100px
-        45px;
-
-    gap: 10px;
-
-    padding: 0 10px 8px;
-
-    color: #888f96;
-
-    font-size: 12px;
-    font-weight: 800;
-
-    text-transform: uppercase;
-}
-
 
 .entry-item {
     display: grid;
 
     grid-template-columns:
         75px
-        140px
-        minmax(180px, 1fr)
-        125px
-        100px
-        100px
-        45px;
+        135px
+        minmax(220px, 1fr)
+        120px
+        90px
+        90px
+        42px;
 
-    gap: 10px;
+    gap: 8px;
 
     align-items: center;
 
-    min-height: 62px;
+    min-height: 58px;
 
-    padding: 8px 10px;
+    padding: 7px 8px;
 
     background: #1b2026;
 
     border: 1px solid #30363d;
-    border-radius: 7px;
+    border-radius: 6px;
 }
-
 
 .entry-time {
     font-size: 20px;
-    font-weight: 800;
-
-    white-space: nowrap;
+    font-weight: 900;
 }
-
 
 .entry-train {
-    font-size: 17px;
-    font-weight: 700;
-
-    white-space: nowrap;
+    font-size: 16px;
+    font-weight: 800;
 }
-
 
 .entry-destination {
-    font-size: 16px;
+    font-size: 15px;
 
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 
-/* =====================================================
-   EDITOVATELNÁ POLÍČKA
-   ===================================================== */
+/* EDITOVÁNÍ */
 
 .edit-field {
     width: 100%;
-    min-width: 0;
+    height: 42px;
 
-    height: 46px;
+    padding: 7px 10px;
 
-    padding: 8px 12px;
-
-    background: #11151a;
+    background: #101419;
 
     color: #ffffff;
 
-    border: 2px solid #444b52;
-    border-radius: 6px;
+    border: 2px solid #3d454d;
+    border-radius: 5px;
 
-    font-size: 16px;
-    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
 
     cursor: text;
 
-    pointer-events: auto;
-
-    position: relative;
-    z-index: 20;
-
     outline: none;
 
-    transition:
-        border-color 0.12s,
-        background 0.12s;
+    position: relative;
+    z-index: 5;
 }
-
 
 .edit-field:hover {
-    border-color: #777f87;
+    border-color: #69727b;
 }
-
 
 .edit-field:focus {
     border-color: #ffffff;
 
-    background: #181d23;
-
-    box-shadow:
-        0 0 0 2px rgba(255, 255, 255, 0.08);
+    background: #171c22;
 }
-
-
-.edit-field::selection {
-    background: #666;
-    color: #ffffff;
-}
-
 
 .edit-field::placeholder {
-    color: #777e85;
+    color: #707983;
 }
 
 
-/* =====================================================
-   SMAZÁNÍ
-   ===================================================== */
+/* SMAZAT */
 
 .delete-button {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
 
-    border: 1px solid #555;
+    border: 1px solid #454d55;
+    border-radius: 5px;
 
-    border-radius: 6px;
-
-    background: #20252b;
+    background: #22272d;
     color: #ffffff;
 
-    font-size: 24px;
-    line-height: 1;
+    font-size: 22px;
 
     cursor: pointer;
 }
 
-
 .delete-button:hover {
-    background: #333941;
+    background: #343b42;
 }
 
 
-.delete-button:active {
-    transform: scale(0.96);
+/* NÁPOVĚDA */
+
+.hint {
+    padding: 0 20px 20px;
+
+    color: #69717a;
+
+    font-size: 12px;
 }
 
 
@@ -402,10 +324,70 @@ input:not(.edit-field):focus {
 
 .board {
     width: 100%;
+    max-width: 1250px;
+
+    margin: 0 auto;
+
+    background: #11161b;
+
+    border: 1px solid #30363d;
+    border-radius: 8px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 15px 40px rgba(0, 0, 0, 0.45);
 }
 
 
+/* HLAVIČKA TABULE */
+
 .board-header {
+    height: 76px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 10px 20px;
+
+    background: #0d1115;
+
+    border-bottom: 1px solid #30363d;
+}
+
+.board-title {
+    font-size: 24px;
+    font-weight: 900;
+
+    letter-spacing: 1px;
+}
+
+.board-subtitle {
+    margin-top: 2px;
+
+    color: #858d95;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    letter-spacing: 2px;
+}
+
+.board-clock {
+    font-size: 29px;
+    font-weight: 800;
+
+    color: #aab1b9;
+
+    font-variant-numeric:
+        tabular-nums;
+}
+
+
+/* HLAVIČKA SLOUPCŮ */
+
+.board-columns {
     display: grid;
 
     grid-template-columns:
@@ -418,25 +400,24 @@ input:not(.edit-field):focus {
 
     gap: 10px;
 
-    padding: 12px 15px;
+    padding: 11px 15px;
 
-    background: #0d1014;
+    background: #0b0f13;
 
-    color: #8e959c;
+    color: #777f87;
 
-    font-size: 13px;
+    border-bottom: 1px solid #30363d;
+
+    font-size: 12px;
     font-weight: 800;
-
-    text-transform: uppercase;
-
-    border-bottom: 1px solid #30353b;
 }
 
 
-.departures-board {
+/* ODJEZDY */
+
+.departures {
     width: 100%;
 }
-
 
 .departure {
     display: grid;
@@ -451,133 +432,97 @@ input:not(.edit-field):focus {
 
     gap: 10px;
 
-    min-height: 82px;
-
     align-items: center;
 
-    padding: 10px 15px;
+    min-height: 72px;
 
-    border-bottom: 1px solid #292e34;
+    padding: 9px 15px;
 
-    background: #181c21;
+    background: #171c21;
+
+    border-bottom: 1px solid #2b3137;
 }
-
 
 .departure:nth-child(even) {
-    background: #15191e;
+    background: #14191e;
 }
-
 
 .departure-time {
-    font-size: 32px;
+    font-size: 30px;
     font-weight: 900;
 
-    font-variant-numeric: tabular-nums;
-
-    white-space: nowrap;
+    font-variant-numeric:
+        tabular-nums;
 }
-
 
 .departure-train {
-    font-size: 21px;
+    font-size: 19px;
     font-weight: 800;
-
-    white-space: nowrap;
 }
-
 
 .departure-destination {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 600;
 
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
 }
-
 
 .departure-delay {
-    font-size: 17px;
-
-    white-space: nowrap;
+    font-size: 16px;
+    font-weight: 700;
 }
-
 
 .departure-on-time {
-    color: #858b91;
-
-    font-weight: 600;
+    color: #858b92;
 }
-
 
 .departure-delayed {
     color: #ff3333;
-
     font-weight: 900;
 }
-
 
 .departure-platform,
 .departure-track {
     text-align: center;
 
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 800;
 }
-
 
 .no-departures {
     padding: 50px 20px;
 
     text-align: center;
 
-    color: #777e85;
+    color: #777f87;
 
-    font-size: 22px;
+    font-size: 20px;
 }
 
 
-/* =====================================================
-   TLAČÍTKA TABULE
-   ===================================================== */
+/* PATIČKA */
 
-.board-controls {
+.board-footer {
     display: flex;
+    justify-content: space-between;
 
-    justify-content: flex-end;
+    padding: 10px 15px;
 
-    gap: 10px;
+    background: #0d1115;
 
-    padding: 15px 0;
-}
+    color: #69717a;
 
-
-.board-button {
-    min-height: 44px;
-
-    padding: 8px 18px;
-
-    background: #22272d;
-
-    color: #ffffff;
-
-    border: 1px solid #444b52;
-    border-radius: 6px;
-
-    cursor: pointer;
-
-    font-size: 15px;
+    font-size: 11px;
     font-weight: 700;
-}
 
-
-.board-button:hover {
-    background: #30363d;
+    letter-spacing: 1px;
 }
 
 
 /* =====================================================
-   MOBIL
+   MENŠÍ OBRAZOVKY
    ===================================================== */
 
 @media (max-width: 900px) {
@@ -586,168 +531,121 @@ input:not(.edit-field):focus {
         padding: 10px;
     }
 
-
-    .header {
-        padding: 14px;
+    .form {
+        grid-template-columns:
+            1fr
+            1fr;
     }
-
-
-    .header-title {
-        font-size: 23px;
-    }
-
-
-    .clock,
-    #clock {
-        min-width: auto;
-        font-size: 21px;
-    }
-
-
-    .content {
-        padding: 15px;
-    }
-
-
-    .form-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-
-
-    .entry-header {
-        display: none;
-    }
-
 
     .entry-item {
         grid-template-columns:
-            75px
+            70px
+            120px
             1fr
-            1fr;
-
-        gap: 8px;
-
-        padding: 10px;
+            110px
+            85px
+            85px
+            42px;
     }
 
-
-    .entry-time {
-        grid-row: span 2;
-    }
-
-
-    .entry-destination {
-        grid-column: 2 / 4;
-    }
-
-
-    .edit-field {
-        min-height: 48px;
-        height: 48px;
-    }
-
-
-    .delete-button {
-        grid-column: 3;
-    }
-
-
-    .board-header {
-        display: none;
-    }
-
-
+    .board-columns,
     .departure {
         grid-template-columns:
-            80px
+            85px
+            140px
             1fr
-            100px;
-
-        min-height: 95px;
+            110px
+            75px
+            75px;
     }
-
-
-    .departure-time {
-        font-size: 26px;
-    }
-
-
-    .departure-train {
-        font-size: 17px;
-    }
-
 
     .departure-destination {
-        grid-column: 2 / 4;
-
-        grid-row: 2;
-
-        font-size: 18px;
-    }
-
-
-    .departure-delay {
-        grid-column: 3;
-        grid-row: 1;
-
-        text-align: right;
-    }
-
-
-    .departure-platform,
-    .departure-track {
-        display: none;
+        font-size: 17px;
     }
 }
 
 
-@media (max-width: 600px) {
+@media (max-width: 650px) {
 
-    .form-grid {
-        grid-template-columns: 1fr;
+    .entry-header {
+        padding: 12px;
     }
 
+    .brand {
+        font-size: 18px;
+    }
+
+    .clock {
+        font-size: 21px;
+    }
+
+    .form {
+        grid-template-columns: 1fr;
+
+        padding: 15px;
+    }
+
+    .main-button {
+        margin-left: 15px;
+        margin-right: 15px;
+    }
+
+    .entry-list {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
 
     .entry-item {
         grid-template-columns:
             70px
             1fr;
 
-        gap: 8px;
+        padding: 10px;
     }
-
 
     .entry-destination {
         grid-column: 2;
     }
 
-
     .edit-field {
         grid-column: 2;
     }
-
 
     .delete-button {
         grid-column: 2;
     }
 
+    .board-columns {
+        display: none;
+    }
 
     .departure {
         grid-template-columns:
-            75px
+            80px
             1fr;
+
+        min-height: 85px;
     }
 
-
-    .departure-delay {
-        grid-column: 2;
-        grid-row: 1;
-
-        text-align: right;
+    .departure-time {
+        font-size: 25px;
     }
-
 
     .departure-destination {
         grid-column: 1 / 3;
+        font-size: 17px;
+    }
+
+    .departure-delay {
+        text-align: right;
+    }
+
+    .departure-platform,
+    .departure-track {
+        display: none;
+    }
+
+    .board-footer {
+        font-size: 9px;
     }
 }
