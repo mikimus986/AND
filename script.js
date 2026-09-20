@@ -623,10 +623,14 @@ function renderBoard() {
             getActiveDepartures()
         );
 
+    // Na tabuli zobrazit vždy maximálně 10 odjezdů
+    const visibleDepartures =
+        active.slice(0, 10);
+
     departuresBoard.innerHTML = "";
 
 
-    if (active.length === 0) {
+    if (visibleDepartures.length === 0) {
 
         departuresBoard.innerHTML = `
             <div class="no-departures">
@@ -638,7 +642,7 @@ function renderBoard() {
     }
 
 
-    active.forEach(item => {
+    visibleDepartures.forEach(item => {
 
         const delay =
             delayToMinutes(item.delay);
@@ -697,7 +701,6 @@ function renderBoard() {
         departuresBoard.appendChild(row);
     });
 }
-
 
 // =====================================================
 // SEZNAM PRO ÚPRAVU
