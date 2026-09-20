@@ -440,10 +440,6 @@ function generatePlannedDepartures() {
 
 
         // AND S25
-        // 10:30, 11:30, 13:30, 14:30,
-        // 16:30, 17:30, 18:30
-        // 12:30 a 15:30 jsou vynechané
-
         let s25Minutes =
             10 * 60 + 30;
 
@@ -717,6 +713,7 @@ function delayToMinutes(delay) {
 
 /* =========================================================
    SKUTEČNÝ ČAS ODJEZDU
+   Používá se pouze pro zmizení spoje.
 ========================================================= */
 
 function getEffectiveDepartureMinutes(item) {
@@ -730,6 +727,7 @@ function getEffectiveDepartureMinutes(item) {
 
 /* =========================================================
    ŘAZENÍ
+   VŽDY PODLE PLÁNOVANÉHO ČASU!
 ========================================================= */
 
 function sortDepartures(data) {
@@ -737,9 +735,16 @@ function sortDepartures(data) {
     return [...data].sort(
         (a, b) => {
 
+            const plannedA =
+                timeToMinutes(a.time);
+
+            const plannedB =
+                timeToMinutes(b.time);
+
+
             return (
-                getEffectiveDepartureMinutes(a) -
-                getEffectiveDepartureMinutes(b)
+                plannedA -
+                plannedB
             );
         }
     );
@@ -747,11 +752,43 @@ function sortDepartures(data) {
 
 
 /* =========================================================
+   AKTIVNÍ SPOJE
+   Zpoždění se zde používá pouze pro zmizení.
+========================================================= */
+
+function getActiveDepartures() {
+
+    const all =
+        getAllDepartures();
+
+
+    const now =
+        new Date();
+
+
+    const currentMinutes =
+        now.getHours() * 60 +
+        now.getMinutes();
+
+
+    return all.filter(item => {
+
+        const effectiveTime =
+            getEffectiveDepartureMinutes(
+                item
+            );
+
+
+        return (
+            effectiveTime >=
+            currentMinutes
+        );
+    });
+}
+
+
+/* =========================================================
    ÚPRAVA MANUÁLNÍHO SPOJE
-   POUZE:
-   - ZPOŽDĚNÍ
-   - NÁSTUPIŠTĚ
-   - KOLEJ
 ========================================================= */
 
 function updateDeparture(
@@ -924,42 +961,7 @@ function getAllDepartures() {
 
 
 /* =========================================================
-   AKTUÁLNĚ PLATNÉ SPOJE
-========================================================= */
-
-function getActiveDepartures() {
-
-    const all =
-        getAllDepartures();
-
-
-    const now =
-        new Date();
-
-
-    const currentMinutes =
-        now.getHours() * 60 +
-        now.getMinutes();
-
-
-    return all.filter(item => {
-
-        const effectiveTime =
-            getEffectiveDepartureMinutes(
-                item
-            );
-
-
-        return (
-            effectiveTime >=
-            currentMinutes
-        );
-    });
-}
-
-
-/* =========================================================
-   SEZNAM PRO ÚPRAVU
+   EDITAČNÍ SEZNAM
 ========================================================= */
 
 function renderEntryList() {
@@ -969,7 +971,6 @@ function renderEntryList() {
     }
 
 
-    // Už odjeté spoje se zde nezobrazí
     const all =
         sortDepartures(
             getActiveDepartures()
@@ -1007,6 +1008,7 @@ function renderEntryList() {
 
             <input
                 type="text"
+                class="edit-field"
                 placeholder="zpoždění"
                 value="${escapeHtml(item.delay || "")}"
                 data-field="delay"
@@ -1014,6 +1016,7 @@ function renderEntryList() {
 
             <input
                 type="text"
+                class="edit-field"
                 placeholder="nást."
                 value="${escapeHtml(item.platform || "")}"
                 data-field="platform"
@@ -1021,6 +1024,7 @@ function renderEntryList() {
 
             <input
                 type="text"
+                class="edit-field"
                 placeholder="kolej"
                 value="${escapeHtml(item.track || "")}"
                 data-field="track"
@@ -1037,38 +1041,37 @@ function renderEntryList() {
 
         const inputs =
             row.querySelectorAll(
-                "input"
+                ".edit-field"
             );
 
 
         inputs.forEach(input => {
 
+            // Uloží při opuštění políčka
             input.addEventListener(
-                "change",
+                "blur",
                 () => {
 
-                    const field =
-                        input.dataset.field;
+                    saveEdit(
+                        item,
+                        input
+                    );
+                }
+            );
 
-                    const value =
-                        input.value;
 
+            // Enter uloží změnu
+            input.addEventListener(
+                "keydown",
+                event => {
 
-                    if (item.planned) {
+                    if (
+                        event.key === "Enter"
+                    ) {
 
-                        updatePlannedDeparture(
-                            item.id,
-                            field,
-                            value
-                        );
+                        event.preventDefault();
 
-                    } else {
-
-                        updateDeparture(
-                            item.id,
-                            field,
-                            value
-                        );
+                        input.blur();
                     }
                 }
             );
@@ -1128,6 +1131,38 @@ function renderEntryList() {
 
 
 /* =========================================================
+   ULOŽENÍ EDITACE
+========================================================= */
+
+function saveEdit(item, input) {
+
+    const field =
+        input.dataset.field;
+
+    const value =
+        input.value;
+
+
+    if (item.planned) {
+
+        updatePlannedDeparture(
+            item.id,
+            field,
+            value
+        );
+
+    } else {
+
+        updateDeparture(
+            item.id,
+            field,
+            value
+        );
+    }
+}
+
+
+/* =========================================================
    TABULE
 ========================================================= */
 
@@ -1138,6 +1173,8 @@ function renderBoard() {
     }
 
 
+    // Řazení je podle PLÁNOVANÉHO času.
+    // Zpoždění pouze prodlužuje dobu zobrazení.
     const all =
         sortDepartures(
             getActiveDepartures()
@@ -1244,7 +1281,7 @@ function renderAll() {
 
 
 /* =========================================================
-   PŘEPÍNÁNÍ OBRAZOVEK
+   PŘEPÍNÁNÍ
 ========================================================= */
 
 function toggleScreen() {
@@ -1263,7 +1300,7 @@ function toggleScreen() {
 
 
 /* =========================================================
-   HODINY NA TABULI
+   HODINY
 ========================================================= */
 
 function updateClocks() {
@@ -1286,7 +1323,6 @@ function updateClocks() {
         ).padStart(2, "0");
 
 
-    // #clock
     const mainClock =
         document.getElementById(
             "clock"
@@ -1300,7 +1336,6 @@ function updateClocks() {
     }
 
 
-    // případné další .clock
     const clocks =
         document.querySelectorAll(
             ".clock"
@@ -1346,7 +1381,7 @@ function escapeHtml(value) {
 
 
 /* =========================================================
-   KLÁVESNICE
+   OVLÁDÁNÍ
 ========================================================= */
 
 if (addButton) {
@@ -1375,7 +1410,7 @@ document.addEventListener(
 
 
 /* =========================================================
-   SPUŠTĚNÍ
+   START
 ========================================================= */
 
 setDefaultTime();
@@ -1390,11 +1425,8 @@ setInterval(
 
         updateClocks();
 
-        // Každou sekundu kontrola
-        // aktuálních odjezdů
         renderBoard();
 
-        // Aktualizace seznamu pro úpravy
         renderEntryList();
 
     },
