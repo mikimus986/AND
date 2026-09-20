@@ -1,16 +1,18 @@
 const entryScreen = document.getElementById("entryScreen");
 const boardScreen = document.getElementById("boardScreen");
 const entryList = document.getElementById("entryList");
-const departureForm = document.getElementById("departureForm");
 
-const timeInput = document.getElementById("time");
-const delayInput = document.getElementById("delay");
-const trainInput = document.getElementById("train");
-const destinationInput = document.getElementById("destination");
-const platformInput = document.getElementById("platform");
-const trackInput = document.getElementById("track");
+const timeInput = document.getElementById("timeInput");
+const delayInput = document.getElementById("delayInput");
+const trainInput = document.getElementById("trainInput");
+const destinationInput = document.getElementById("destinationInput");
+const platformInput = document.getElementById("platformInput");
+const trackInput = document.getElementById("trackInput");
 
-const clockElements = document.querySelectorAll("#clock, .clock");
+const addButton = document.getElementById("addButton");
+const departuresBoard = document.getElementById("departures");
+const clock = document.getElementById("clock");
+const boardClock = document.getElementById("boardClock");
 
 let departures = JSON.parse(
     localStorage.getItem("departures") || "[]"
@@ -26,37 +28,38 @@ let plannedOverrides = JSON.parse(
 // =====================================================
 
 function timeToMinutes(time) {
-    if (!time || !time.includes(":")) {
-        return 0;
-    }
+    if (!time || !time.includes(":")) return 0;
 
-    const parts = time.split(":");
-    return Number(parts[0]) * 60 + Number(parts[1]);
+    const [hours, minutes] = time.split(":").map(Number);
+
+    return hours * 60 + minutes;
 }
 
 
 function minutesToTime(minutes) {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
 
     return (
-        String(h).padStart(2, "0") +
+        String(hours).padStart(2, "0") +
         ":" +
-        String(m).padStart(2, "0")
+        String(mins).padStart(2, "0")
     );
 }
 
 
 function delayToMinutes(delay) {
-    if (delay === null || delay === undefined || delay === "") {
+    if (
+        delay === "" ||
+        delay === null ||
+        delay === undefined
+    ) {
         return 0;
     }
 
     const value = Number(delay);
 
-    if (isNaN(value) || value < 0) {
-        return 0;
-    }
+    if (isNaN(value) || value < 0) return 0;
 
     return value;
 }
@@ -72,7 +75,7 @@ function escapeHtml(value) {
 }
 
 
-function saveData() {
+function saveDepartures() {
     localStorage.setItem(
         "departures",
         JSON.stringify(departures)
@@ -80,8 +83,11 @@ function saveData() {
 }
 
 
-function getToday() {
-    return new Date();
+function saveOverrides() {
+    localStorage.setItem(
+        "plannedOverrides",
+        JSON.stringify(plannedOverrides)
+    );
 }
 
 
@@ -94,13 +100,15 @@ function generateRecurring(
     interval,
     train,
     destination,
-    isWeekend
+    weekend
 ) {
     const result = [];
 
     let current = timeToMinutes(startTime);
 
     while (current <= 18 * 60 + 59) {
+
+        const time = minutesToTime(current);
 
         result.push({
             id:
@@ -113,26 +121,22 @@ function generateRecurring(
 
             planned: true,
 
-            time: minutesToTime(current),
-
-            train: train,
-
-            destination: destination,
-
-            platform: "",
-
-            track: "",
+            time,
+            train,
+            destination,
 
             delay: "",
+            platform: "",
+            track: "",
 
             overrideKey:
                 train +
                 "|" +
                 destination +
                 "|" +
-                minutesToTime(current),
+                time,
 
-            weekend: isWeekend
+            weekend
         });
 
         current += interval;
@@ -146,7 +150,7 @@ function generateFixed(
     times,
     train,
     destination,
-    isWeekend
+    weekend
 ) {
     return times.map(time => ({
         id:
@@ -159,17 +163,13 @@ function generateFixed(
 
         planned: true,
 
-        time: time,
-
-        train: train,
-
-        destination: destination,
-
-        platform: "",
-
-        track: "",
+        time,
+        train,
+        destination,
 
         delay: "",
+        platform: "",
+        track: "",
 
         overrideKey:
             train +
@@ -178,22 +178,24 @@ function generateFixed(
             "|" +
             time,
 
-        weekend: isWeekend
+        weekend
     }));
 }
 
 
 function getAutomaticDepartures() {
-    const date = getToday();
-    const day = date.getDay();
 
-    const isWeekend = day === 0 || day === 6;
+    const day = new Date().getDay();
+
+    const weekend =
+        day === 0 ||
+        day === 6;
 
     let result = [];
 
-    if (!isWeekend) {
 
-        // S1
+    if (!weekend) {
+
         result.push(
             ...generateRecurring(
                 "14:12",
@@ -214,8 +216,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // S14
         result.push(
             ...generateRecurring(
                 "14:26",
@@ -226,8 +226,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // S15
         result.push(
             ...generateRecurring(
                 "14:13",
@@ -237,7 +235,6 @@ function getAutomaticDepartures() {
                 false
             )
         );
-
 
         result.push(
             ...generateRecurring(
@@ -249,8 +246,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // S25
         result.push(
             ...generateRecurring(
                 "14:30",
@@ -271,8 +266,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // S7
         result.push(
             ...generateFixed(
                 ["16:31", "18:31"],
@@ -282,8 +275,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // R1
         result.push(
             ...generateRecurring(
                 "14:03",
@@ -294,8 +285,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // RJET R56
         result.push(
             ...generateRecurring(
                 "14:04",
@@ -316,8 +305,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // R77
         result.push(
             ...generateRecurring(
                 "15:13",
@@ -328,8 +315,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // R4
         result.push(
             ...generateRecurring(
                 "14:20",
@@ -340,8 +325,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // Sp27
         result.push(
             ...generateRecurring(
                 "14:17",
@@ -352,8 +335,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // S92
         result.push(
             ...generateRecurring(
                 "14:23",
@@ -366,7 +347,6 @@ function getAutomaticDepartures() {
 
     } else {
 
-        // S1
         result.push(
             ...generateRecurring(
                 "10:12",
@@ -387,8 +367,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // S7
         result.push(
             ...generateFixed(
                 ["18:31"],
@@ -398,8 +376,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // R1
         result.push(
             ...generateRecurring(
                 "10:03",
@@ -410,8 +386,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // S15
         result.push(
             ...generateRecurring(
                 "10:28",
@@ -432,8 +406,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // RJET R56
         result.push(
             ...generateRecurring(
                 "10:04",
@@ -454,8 +426,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // R77
         result.push(
             ...generateRecurring(
                 "11:13",
@@ -466,8 +436,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // S14
         result.push(
             ...generateRecurring(
                 "10:56",
@@ -478,8 +446,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // Sp27
         result.push(
             ...generateRecurring(
                 "10:17",
@@ -500,8 +466,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // S25 Trnkov
         result.push(
             ...generateFixed(
                 [
@@ -519,8 +483,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // S25 Mazi
         result.push(
             ...generateFixed(
                 ["12:30", "15:30"],
@@ -530,8 +492,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // S92
         result.push(
             ...generateRecurring(
                 "10:23",
@@ -542,8 +502,6 @@ function getAutomaticDepartures() {
             )
         );
 
-
-        // R4
         result.push(
             ...generateRecurring(
                 "10:20",
@@ -563,17 +521,14 @@ function getAutomaticDepartures() {
 // OVERRIDE AUTOMATICKÝCH SPOJŮ
 // =====================================================
 
-function applyPlannedOverrides(item) {
+function applyOverride(item) {
 
-    const key = item.overrideKey;
+    const override =
+        plannedOverrides[item.overrideKey];
 
-    if (!plannedOverrides[key]) {
-        return {
-            ...item
-        };
+    if (!override) {
+        return { ...item };
     }
-
-    const override = plannedOverrides[key];
 
     return {
         ...item,
@@ -597,31 +552,32 @@ function applyPlannedOverrides(item) {
 
 
 // =====================================================
-// AKTIVNÍ SPOJE
+// SPOJE
 // =====================================================
 
-function getEffectiveDepartureMinutes(item) {
-    return (
-        timeToMinutes(item.time) +
-        delayToMinutes(item.delay)
-    );
+function getAllDepartures() {
+
+    const automatic =
+        getAutomaticDepartures()
+            .map(applyOverride);
+
+    const manual =
+        departures.map(item => ({
+            ...item,
+            planned: false
+        }));
+
+    return [
+        ...automatic,
+        ...manual
+    ];
 }
 
 
 function getActiveDepartures() {
 
-    const automatic = getAutomaticDepartures()
-        .map(applyPlannedOverrides);
-
-    const manual = departures.map(item => ({
-        ...item,
-        planned: false
-    }));
-
-    const all = [
-        ...automatic,
-        ...manual
-    ];
+    const all =
+        getAllDepartures();
 
     const now = new Date();
 
@@ -629,32 +585,28 @@ function getActiveDepartures() {
         now.getHours() * 60 +
         now.getMinutes();
 
+
     return all.filter(item => {
 
+        const departureTime =
+            timeToMinutes(item.time);
+
         const effectiveTime =
-            getEffectiveDepartureMinutes(item);
+            departureTime +
+            delayToMinutes(item.delay);
 
         return effectiveTime > currentMinutes;
     });
 }
 
 
-// =====================================================
-// ŘAZENÍ
-// =====================================================
+function sortDepartures(items) {
 
-function sortDepartures(data) {
-
-    return [...data].sort((a, b) => {
-
-        const plannedA =
-            timeToMinutes(a.time);
-
-        const plannedB =
-            timeToMinutes(b.time);
-
-        return plannedA - plannedB;
-    });
+    return [...items].sort(
+        (a, b) =>
+            timeToMinutes(a.time) -
+            timeToMinutes(b.time)
+    );
 }
 
 
@@ -664,35 +616,32 @@ function sortDepartures(data) {
 
 function renderBoard() {
 
-    const board = document.getElementById("departuresBoard");
+    if (!departuresBoard) return;
 
-    if (!board) {
-        return;
-    }
-
-    const activeDepartures =
+    const active =
         sortDepartures(
             getActiveDepartures()
         );
 
-    board.innerHTML = "";
+    departuresBoard.innerHTML = "";
 
-    activeDepartures.forEach(item => {
+
+    if (active.length === 0) {
+
+        departuresBoard.innerHTML = `
+            <div class="no-departures">
+                ŽÁDNÉ DALŠÍ ODJEZDY
+            </div>
+        `;
+
+        return;
+    }
+
+
+    active.forEach(item => {
 
         const delay =
             delayToMinutes(item.delay);
-
-        let delayText = "Včas";
-        let delayClass = "departure-on-time";
-
-        if (delay > 0) {
-            delayText =
-                `+${delay} minut`;
-
-            delayClass =
-                "departure-delayed";
-        }
-
 
         const row =
             document.createElement("div");
@@ -715,8 +664,16 @@ function renderBoard() {
                 ${escapeHtml(item.destination)}
             </div>
 
-            <div class="departure-delay ${delayClass}">
-                ${escapeHtml(delayText)}
+            <div class="departure-delay ${
+                delay > 0
+                    ? "departure-delayed"
+                    : "departure-on-time"
+            }">
+                ${
+                    delay > 0
+                        ? "+" + delay + " minut"
+                        : "Včas"
+                }
             </div>
 
             <div class="departure-platform">
@@ -736,18 +693,9 @@ function renderBoard() {
             </div>
         `;
 
-        board.appendChild(row);
+
+        departuresBoard.appendChild(row);
     });
-
-
-    if (activeDepartures.length === 0) {
-
-        board.innerHTML = `
-            <div class="no-departures">
-                Žádné další odjezdy
-            </div>
-        `;
-    }
 }
 
 
@@ -757,11 +705,9 @@ function renderBoard() {
 
 function renderEntryList() {
 
-    if (!entryList) {
-        return;
-    }
+    if (!entryList) return;
 
-    const activeDepartures =
+    const active =
         sortDepartures(
             getActiveDepartures()
         );
@@ -769,23 +715,13 @@ function renderEntryList() {
     entryList.innerHTML = "";
 
 
-    activeDepartures.forEach(item => {
+    active.forEach(item => {
 
         const row =
             document.createElement("div");
 
         row.className =
             "entry-item";
-
-
-        const delay =
-            item.delay ?? "";
-
-        const platform =
-            item.platform ?? "";
-
-        const track =
-            item.track ?? "";
 
 
         row.innerHTML = `
@@ -804,30 +740,30 @@ function renderEntryList() {
 
             <input
                 class="edit-field"
-                data-id="${escapeHtml(item.id)}"
-                data-field="delay"
                 type="number"
                 min="0"
                 placeholder="zpoždění"
-                value="${escapeHtml(delay)}"
+                value="${escapeHtml(item.delay || "")}"
+                data-id="${escapeHtml(item.id)}"
+                data-field="delay"
             >
 
             <input
                 class="edit-field"
-                data-id="${escapeHtml(item.id)}"
-                data-field="platform"
                 type="text"
                 placeholder="Nást."
-                value="${escapeHtml(platform)}"
+                value="${escapeHtml(item.platform || "")}"
+                data-id="${escapeHtml(item.id)}"
+                data-field="platform"
             >
 
             <input
                 class="edit-field"
-                data-id="${escapeHtml(item.id)}"
-                data-field="track"
                 type="text"
                 placeholder="Kolej"
-                value="${escapeHtml(track)}"
+                value="${escapeHtml(item.track || "")}"
+                data-id="${escapeHtml(item.id)}"
+                data-field="track"
             >
 
             ${
@@ -855,267 +791,204 @@ function renderEntryList() {
 
 
 // =====================================================
-// ÚPRAVY
+// ÚPRAVA
 // =====================================================
 
-function updateDeparture(
-    id,
-    field,
-    value
-) {
+function saveEdit(field) {
 
-    const item =
-        departures.find(
-            departure =>
-                departure.id === id
-        );
+    const id =
+        field.dataset.id;
 
-    if (!item) {
-        return;
-    }
+    const property =
+        field.dataset.field;
 
-    if (field === "delay") {
+    const value =
+        field.value.trim();
 
-        if (value === "") {
-            item.delay = "";
-        } else {
-            const number =
-                Number(value);
 
-            item.delay =
-                isNaN(number)
-                    ? ""
-                    : Math.max(0, number);
+    const automatic =
+        getAutomaticDepartures()
+            .find(item => item.id === id);
+
+
+    if (automatic) {
+
+        const key =
+            automatic.overrideKey;
+
+        if (!plannedOverrides[key]) {
+            plannedOverrides[key] = {};
         }
 
-    } else {
 
-        item[field] =
-            value;
-    }
-
-
-    saveData();
-
-    // Pouze tabule.
-    // Seznam se NESMÍ překreslit,
-    // protože by zmizel focus z inputu.
-    renderBoard();
-}
-
-
-function updatePlannedDeparture(
-    item,
-    field,
-    value
-) {
-
-    const key =
-        item.overrideKey;
-
-    if (!plannedOverrides[key]) {
-        plannedOverrides[key] = {};
-    }
-
-
-    if (field === "delay") {
-
-        if (value === "") {
-
-            plannedOverrides[key].delay = "";
-
-        } else {
-
-            const number =
-                Number(value);
+        if (property === "delay") {
 
             plannedOverrides[key].delay =
-                isNaN(number)
+                value === ""
                     ? ""
-                    : Math.max(0, number);
+                    : Math.max(0, Number(value) || 0);
+
+        } else {
+
+            plannedOverrides[key][property] =
+                value;
         }
+
+
+        saveOverrides();
 
     } else {
 
-        plannedOverrides[key][field] =
-            value;
+        const item =
+            departures.find(
+                departure =>
+                    departure.id === id
+            );
+
+        if (!item) return;
+
+
+        if (property === "delay") {
+
+            item.delay =
+                value === ""
+                    ? ""
+                    : Math.max(0, Number(value) || 0);
+
+        } else {
+
+            item[property] = value;
+        }
+
+
+        saveDepartures();
     }
 
 
-    localStorage.setItem(
-        "plannedOverrides",
-        JSON.stringify(plannedOverrides)
-    );
-
-
-    // Pouze tabule.
     renderBoard();
 }
 
-
-// =====================================================
-// EVENTY PRO INPUTY
-// =====================================================
 
 function attachEditEvents() {
 
-    const fields =
-        entryList.querySelectorAll(
-            ".edit-field"
-        );
+    entryList
+        .querySelectorAll(".edit-field")
+        .forEach(field => {
+
+            field.addEventListener(
+                "blur",
+                () => saveEdit(field)
+            );
 
 
-    fields.forEach(field => {
+            field.addEventListener(
+                "keydown",
+                event => {
 
-        field.addEventListener(
-            "keydown",
-            event => {
+                    if (event.key === "Enter") {
 
-                if (event.key === "Enter") {
+                        event.preventDefault();
 
-                    event.preventDefault();
-
-                    field.blur();
+                        field.blur();
+                    }
                 }
-            }
-        );
+            );
+        });
 
 
-        field.addEventListener(
-            "blur",
-            () => {
+    entryList
+        .querySelectorAll("[data-delete]")
+        .forEach(button => {
 
-                const id =
-                    field.dataset.id;
+            button.addEventListener(
+                "click",
+                () => {
 
-                const property =
-                    field.dataset.field;
+                    const id =
+                        button.dataset.delete;
 
-                const value =
-                    field.value.trim();
-
-
-                const automatic =
-                    getAutomaticDepartures()
-                        .find(
+                    departures =
+                        departures.filter(
                             item =>
-                                item.id === id
+                                item.id !== id
                         );
 
+                    saveDepartures();
 
-                if (automatic) {
-
-                    updatePlannedDeparture(
-                        automatic,
-                        property,
-                        value
-                    );
-
-                } else {
-
-                    updateDeparture(
-                        id,
-                        property,
-                        value
-                    );
+                    renderEntryList();
+                    renderBoard();
                 }
-            }
-        );
-    });
-
-
-    const deleteButtons =
-        entryList.querySelectorAll(
-            "[data-delete]"
-        );
-
-
-    deleteButtons.forEach(button => {
-
-        button.addEventListener(
-            "click",
-            () => {
-
-                const id =
-                    button.dataset.delete;
-
-                departures =
-                    departures.filter(
-                        item =>
-                            item.id !== id
-                    );
-
-                saveData();
-
-                renderEntryList();
-                renderBoard();
-            }
-        );
-    });
+            );
+        });
 }
 
 
 // =====================================================
-// PŘIDÁNÍ RUČNÍHO SPOJE
+// PŘIDÁNÍ SPOJE
 // =====================================================
 
-if (departureForm) {
+addButton.addEventListener(
+    "click",
+    () => {
 
-    departureForm.addEventListener(
-        "submit",
-        event => {
+        if (
+            !timeInput.value ||
+            !trainInput.value.trim() ||
+            !destinationInput.value.trim()
+        ) {
+            alert(
+                "Vyplň ČAS, LINKU / ČÍSLO VLAKU a SMĚR."
+            );
 
-            event.preventDefault();
-
-
-            if (
-                !timeInput.value ||
-                !trainInput.value ||
-                !destinationInput.value
-            ) {
-                return;
-            }
-
-
-            const item = {
-
-                id:
-                    Date.now().toString(),
-
-                planned: false,
-
-                time:
-                    timeInput.value,
-
-                delay:
-                    delayInput.value,
-
-                train:
-                    trainInput.value.trim(),
-
-                destination:
-                    destinationInput.value.trim(),
-
-                platform:
-                    platformInput.value.trim(),
-
-                track:
-                    trackInput.value.trim()
-            };
-
-
-            departures.push(item);
-
-            saveData();
-
-
-            departureForm.reset();
-
-            renderEntryList();
-            renderBoard();
+            return;
         }
-    );
-}
+
+
+        const item = {
+
+            id:
+                "manual_" +
+                Date.now(),
+
+            planned: false,
+
+            time:
+                timeInput.value,
+
+            delay:
+                delayInput.value,
+
+            train:
+                trainInput.value.trim(),
+
+            destination:
+                destinationInput.value.trim(),
+
+            platform:
+                platformInput.value.trim(),
+
+            track:
+                trackInput.value.trim()
+        };
+
+
+        departures.push(item);
+
+        saveDepartures();
+
+
+        timeInput.value = "";
+        delayInput.value = "";
+        trainInput.value = "";
+        destinationInput.value = "";
+        platformInput.value = "";
+        trackInput.value = "";
+
+
+        renderEntryList();
+        renderBoard();
+    }
+);
 
 
 // =====================================================
@@ -1126,7 +999,7 @@ function updateClocks() {
 
     const now = new Date();
 
-    const time =
+    const fullTime =
         now.toLocaleTimeString(
             "cs-CZ",
             {
@@ -1136,20 +1009,36 @@ function updateClocks() {
             }
         );
 
+    const shortTime =
+        now.toLocaleTimeString(
+            "cs-CZ",
+            {
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        );
 
-    clockElements.forEach(clock => {
-        clock.textContent = time;
-    });
+
+    if (clock) {
+        clock.textContent =
+            fullTime;
+    }
+
+    if (boardClock) {
+        boardClock.textContent =
+            shortTime;
+    }
 }
 
 
 // =====================================================
-// PŘEPÍNÁNÍ TABULE / ZADÁVÁNÍ
+// PŘEPNUTÍ *
 // =====================================================
 
 function showBoard() {
 
     entryScreen.classList.add("hidden");
+
     boardScreen.classList.remove("hidden");
 
     renderBoard();
@@ -1159,6 +1048,7 @@ function showBoard() {
 function showEntry() {
 
     boardScreen.classList.add("hidden");
+
     entryScreen.classList.remove("hidden");
 
     renderEntryList();
@@ -1184,40 +1074,13 @@ document.addEventListener(
 
 
 // =====================================================
-// TLAČÍTKO PRO TABULI
-// =====================================================
-
-const boardButton =
-    document.getElementById("showBoard");
-
-if (boardButton) {
-
-    boardButton.addEventListener(
-        "click",
-        showBoard
-    );
-}
-
-
-const backButton =
-    document.getElementById("backToEntry");
-
-if (backButton) {
-
-    backButton.addEventListener(
-        "click",
-        showEntry
-    );
-}
-
-
-// =====================================================
 // START
 // =====================================================
 
 updateClocks();
 
 renderEntryList();
+
 renderBoard();
 
 
@@ -1225,32 +1088,31 @@ renderBoard();
 // AKTUALIZACE
 // =====================================================
 
-setInterval(() => {
+setInterval(
+    () => {
 
-    updateClocks();
+        updateClocks();
 
-    renderBoard();
-
-
-    // TADY JE HLAVNÍ OPRAVA:
-    // pokud je kurzor v některém políčku,
-    // seznam se nepřekreslí.
-
-    if (
-        !entryScreen.classList.contains("hidden")
-    ) {
-
-        const active =
-            document.activeElement;
-
-        const editing =
-            active &&
-            entryList.contains(active);
+        renderBoard();
 
 
-        if (!editing) {
-            renderEntryList();
+        // Pokud zrovna uživatel píše,
+        // seznam se nepřekresluje.
+        if (
+            !entryScreen.classList.contains("hidden")
+        ) {
+
+            const active =
+                document.activeElement;
+
+            if (
+                !active ||
+                !entryList.contains(active)
+            ) {
+                renderEntryList();
+            }
         }
-    }
 
-}, 1000);
+    },
+    1000
+);
